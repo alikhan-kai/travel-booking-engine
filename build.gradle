@@ -1,54 +1,36 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '4.1.1'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '4.1.1' apply false
+    id 'io.spring.dependency-management' version '1.1.7' apply false
 }
 
-group = 'kz.kaspi.travel'
-version = '0.0.1-SNAPSHOT'
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
 
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
-}
+    group = 'kz.kaspi.travel'
+    version = '0.0.1-SNAPSHOT'
 
-repositories {
-	mavenCentral()
-}
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
 
-dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
-	implementation 'org.springframework.boot:spring-boot-starter-kafka'
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'org.postgresql:postgresql'
-	runtimeOnly 'org.postgresql:r2dbc-postgresql'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-r2dbc-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-kafka-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-webflux-test'
-	testCompileOnly 'org.projectlombok:lombok'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	testAnnotationProcessor 'org.projectlombok:lombok'
-	// Библиотека Resilience4j для Spring Boot 3
-	implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
-	
-	// Поддержка реактивного стека (WebFlux) для Resilience4j
-	implementation 'io.github.resilience4j:resilience4j-reactor:2.2.0'
-	
-	// AOP нужен, чтобы аннотации @CircuitBreaker работали под капотом
-	implementation 'org.springframework.boot:spring-boot-starter-aop'
+    repositories {
+        mavenCentral()
+    }
 
-	// Мониторинг и метрики "здоровья" приложения
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    dependencies {
+        // Базовые зависимости для всех модулей
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+        testCompileOnly 'org.projectlombok:lombok'
+        testAnnotationProcessor 'org.projectlombok:lombok'
+    }
 
-	// Swagger UI (Генерация интерактивной документации API)
-	implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.3.0'
-}
-
-tasks.named('test') {
-	useJUnitPlatform()
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
 }

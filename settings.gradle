@@ -1,1 +1,15 @@
-rootProject.name = 'core'
+rootProject.name = 'kaspi-travel-enterprise'
+
+// Базовые модули
+include 'shared-core'          // DTO, Базовые интерфейсы, CQRS команды
+include 'api-gateway'          // Точка входа, Security, JWT
+
+// Travel-модули
+include 'flight-aggregator'    // Интеграция с GDS
+include 'routing-engine'       // Графовый алгоритм умных пересадок
+include 'booking-orchestrator' // CQRS, Event Sourcing, Saga (Ядро проекта)
+
+// FinTech-модули
+include 'payment-gateway'      // Карты, Kaspi Red
+include 'loyalty-service'      // Kaspi Бонусы
+include 'profile-service'      // Проверка ИИН и паспортов
