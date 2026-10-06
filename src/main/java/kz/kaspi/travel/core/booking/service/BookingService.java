@@ -1,11 +1,14 @@
 package kz.kaspi.travel.core.booking.service;
 
+import kz.kaspi.travel.core.booking.messaging.BookingCreatedEvent;
+import kz.kaspi.travel.core.booking.messaging.BookingEventProducer;
 import kz.kaspi.travel.core.booking.model.Booking;
 import kz.kaspi.travel.core.booking.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -16,12 +19,11 @@ public class BookingService {
     private final ReactiveStringRedisTemplate redisTemplate;
     private final BookingRepository bookingRepository;
 
-    public Mono<Booking> holdSeat(String flightId, String seatNumber) {
-        // Уникальный ключ для кресла (например: flight:KC123:seat:14A)
-        String redisKey = "flight: " + flightId + ":seat:" + seatNumber;
+    private final BookingEventProducer eventProducer;
 
-        // 1.Атомарная блокировка в Redis (SETNX - Set if Not eXists) с таймером на 15
-        // минут
+    public Mono<Booking> holdSeat(String flightId, String seatNumber) {
+        String redisKey = "flight:" + flightId + ":seat:" + seatNumber;
+
         return redisTemplate.opsForValue()
                 .setIfAbsent(redisKey, "LOCKED", Duration.ofMinutes(15))
                 .flatMap(isLocked -> {
@@ -32,11 +34,23 @@ public class BookingService {
                                 .status("PENDING")
                                 .createdAt(LocalDateTime.now())
                                 .build();
-                        return bookingRepository.save(newBooking);
+
+                        // Сохраняем в БД, затем отправляем в Kafka
+                        return bookingRepository.save(newBooking)
+                                // doOnNext сработает только если сохранение в БД прошло успешно
+                                .doOnNext(savedBooking -> {
+                                    BookingCreatedEvent event = BookingCreatedEvent.builder()
+                                            .bookingId(savedBooking.getId())
+                                            .flightId(savedBooking.getFlightId())
+                                            .seatNumber(savedBooking.getSeatNumber())
+                                            .timestamp(LocalDateTime.now())
+                                            .build();
+
+                                    eventProducer.sendBookingCreated(event);
+                                });
                     } else {
-                        return Mono.error(new RuntimeException("Seat is already booked:" + seatNumber));
+                        return Mono.error(new RuntimeException("Seat already booked " + seatNumber));
                     }
                 });
-
     }
 }
