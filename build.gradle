@@ -33,6 +33,20 @@ dependencies {
 	testCompileOnly 'org.projectlombok:lombok'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testAnnotationProcessor 'org.projectlombok:lombok'
+	// Библиотека Resilience4j для Spring Boot 3
+	implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
+	
+	// Поддержка реактивного стека (WebFlux) для Resilience4j
+	implementation 'io.github.resilience4j:resilience4j-reactor:2.2.0'
+	
+	// AOP нужен, чтобы аннотации @CircuitBreaker работали под капотом
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+	// Мониторинг и метрики "здоровья" приложения
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// Swagger UI (Генерация интерактивной документации API)
+	implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.3.0'
 }
 
 tasks.named('test') {
