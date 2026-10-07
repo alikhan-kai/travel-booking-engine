@@ -1,0 +1,18 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: flight-aggregator
+          uri: http://localhost:8081
+          predicates:
+            - Path=/v1/flights/**
+            
+        - id: booking-orchestrator
+          uri: http://localhost:8082
+          predicates:
+            - Path=/v1/bookings/**

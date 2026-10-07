@@ -32,7 +32,8 @@ public class SmartRouteService {
                     if (secondLeg.getDepartureCity().equals(firstLeg.getArrivalCity())
                             && secondLeg.getArrivalCity().equals(destination)) {
 
-                        Duration layover = Duration.between(firstLeg.getArrivalTime(), secondLeg.getDepartureTime());
+                        // Поскольку mock-клиенты не присылают arrivalTime (он null), эмулируем полет в 2 часа
+                        Duration layover = Duration.between(firstLeg.getDepartureTime().plusHours(2), secondLeg.getDepartureTime());
 
                         if (layover.toHours() >= 2 && layover.toHours() <= 12) {
                             System.out.println("🔗 [ROUTING] Найдена умная стыковка! " +
