@@ -1,5 +1,4 @@
 dependencies {
     implementation project(':shared-core')
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'org.springframework.kafka:spring-kafka'
 }

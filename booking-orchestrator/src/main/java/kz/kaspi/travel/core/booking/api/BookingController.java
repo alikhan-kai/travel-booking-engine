@@ -1,12 +1,8 @@
 package kz.kaspi.travel.core.booking.api;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import kz.kaspi.travel.core.booking.model.Booking;
-import kz.kaspi.travel.core.booking.service.BookingService;
+import kz.kaspi.travel.core.booking.service.BookingSagaOrchestrator;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -15,13 +11,19 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class BookingController {
 
-    private final BookingService bookingService;
+    private final BookingSagaOrchestrator sagaOrchestrator;
 
     @PostMapping("/hold")
     public Mono<Booking> holdSeat(
             @RequestParam String flightId,
-            @RequestParam String seatNumber) {
+            @RequestParam String seatNumber,
+            @RequestParam String iin) {
 
-        return bookingService.holdSeat(flightId, seatNumber);
+        Booking booking = new Booking();
+        booking.setFlightId(flightId);
+        booking.setSeatNumber(seatNumber);
+        
+        // Запускаем нашу Сагу вместе с ИИН пассажира!
+        return sagaOrchestrator.startSaga(booking, iin);
     }
 }

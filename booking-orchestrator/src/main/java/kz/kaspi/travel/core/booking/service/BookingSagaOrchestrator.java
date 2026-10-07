@@ -19,19 +19,41 @@ public class BookingSagaOrchestrator {
     private final BookingRepository bookingRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public Mono<Booking> startSaga(Booking booking) {
-        booking.setStatus("NEW");
+    // Клиент для проверки ИИН в profile-service
+    private final org.springframework.web.reactive.function.client.WebClient profileClient = 
+            org.springframework.web.reactive.function.client.WebClient.create("http://localhost:8086");
 
-        return bookingRepository.save(booking)
-                .doOnNext(saved -> {
-                    ReserveBonusesCommand command = ReserveBonusesCommand.builder()
-                            .bookingId(saved.getId().toString())
-                            .userId("USER_123")
-                            .amount(5000)
-                            .build();
+    public record ValidationResponse(boolean isValid, String message) {}
 
-                    kafkaTemplate.send("loyalty-commands", saved.getId().toString(), command);
-                    System.out.println("[SAGA START] Отправлена команда на заморозку бонусов.");
+    public Mono<Booking> startSaga(Booking booking, String passengerIin) {
+        
+        System.out.println("🛡️ [SAGA PRE-CHECK] Отправляем ИИН " + passengerIin + " на проверку в Profile Service...");
+
+        return profileClient.get()
+                .uri("/v1/profiles/validate?iin=" + passengerIin)
+                .retrieve()
+                .bodyToMono(ValidationResponse.class)
+                .flatMap(validation -> {
+                    if (!validation.isValid()) {
+                        System.out.println("⛔ [SAGA ОТМЕНА] Бронь отклонена: " + validation.message());
+                        booking.setStatus("REJECTED_BY_ANTIFRAUD");
+                        return bookingRepository.save(booking); // Сохраняем в БД как отклоненный
+                    }
+
+                    System.out.println("✅ [SAGA PRE-CHECK] Пассажир чист! Начинаем транзакцию.");
+                    booking.setStatus("NEW");
+
+                    return bookingRepository.save(booking)
+                            .doOnNext(saved -> {
+                                ReserveBonusesCommand command = ReserveBonusesCommand.builder()
+                                        .bookingId(saved.getId().toString())
+                                        .userId(passengerIin)
+                                        .amount(5000)
+                                        .build();
+
+                                kafkaTemplate.send("loyalty-commands", saved.getId().toString(), command);
+                                System.out.println("🚀 [SAGA START] Отправлена команда на заморозку бонусов.");
+                            });
                 });
     }
 
