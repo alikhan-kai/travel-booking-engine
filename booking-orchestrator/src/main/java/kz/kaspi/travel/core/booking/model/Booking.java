@@ -8,8 +8,13 @@ import org.springframework.data.relational.core.mapping.Table;
 import lombok.Builder;
 import lombok.Data;
 
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table("bookings")
 public class Booking {
 

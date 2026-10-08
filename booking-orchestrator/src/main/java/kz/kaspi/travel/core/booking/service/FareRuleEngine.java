@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class FareRuleEngine {
 
-    public BigDecimal calculateRefaundAmount(BigDecimal ticketPrice, String fareType) {
+    public BigDecimal calculateRefundAmount(BigDecimal ticketPrice, String fareType) {
         return switch (fareType.toUpperCase()) {
             case "BASIC" -> BigDecimal.ZERO;
             case "STANDARD" -> ticketPrice.subtract(new BigDecimal("15000"));
