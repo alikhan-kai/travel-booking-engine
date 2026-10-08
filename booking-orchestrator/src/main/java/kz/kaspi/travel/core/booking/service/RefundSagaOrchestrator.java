@@ -37,7 +37,7 @@ public class RefundSagaOrchestrator {
                                         .amountToRefund(amountToRefund)
                                         .build();
 
-                                kafkaTemplate.send("payment-commands", saved.getId().toString(), command);
+                                kafkaTemplate.send("payment-refund-commands", saved.getId().toString(), command);
                                 System.out.println("[REFUND SAGA] The return command has been sent to Kafka!");
                             });
                 });

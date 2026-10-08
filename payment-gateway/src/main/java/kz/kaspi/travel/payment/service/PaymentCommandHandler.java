@@ -1,6 +1,7 @@
 package kz.kaspi.travel.payment.service;
 
 import kz.kaspi.travel.shared.command.ChargeCardCommand;
+import kz.kaspi.travel.shared.command.RefundCardCommand;
 import kz.kaspi.travel.shared.event.PaymentProcessedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -32,5 +33,14 @@ public class PaymentCommandHandler {
                 .build();
 
         kafkaTemplate.send("payment-events", event.getBookingId(), event);
+    }
+
+    @KafkaListener(topics = "payment-refund-commands", groupId = "payment-group")
+    public void handleRefund(RefundCardCommand command) {
+        System.out.println("[PAYMENT GATEWAY] Request for refund");
+        System.out.println("[PAYMENT GATEWAY] Order: " + command.getBookingId() + " | Refund amount: "
+                + command.getAmountToRefund() + " tg.");
+        System.out.println(
+                "[PAYMENT GATEWAY] The refund has been successfully processed and credited to the customer's card!");
     }
 }
