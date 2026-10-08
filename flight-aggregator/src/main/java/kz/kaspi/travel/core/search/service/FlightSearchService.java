@@ -21,7 +21,7 @@ public class FlightSearchService {
     private final CacheManager cacheManager;
 
     // WebClient для асинхронных HTTP запросов к другим микросервисам
-    private final WebClient webClient = WebClient.create("http://localhost:8085");
+    private final WebClient.Builder webClientBuilder;
 
     public Flux<FlightOffer> searchFlights(String departure, String arrival) {
         // Уникальный ключ маршрута, например: "ALA-KGF"
@@ -57,6 +57,7 @@ public class FlightSearchService {
             if (flightsList.isEmpty())
                 return Flux.empty();
 
+            WebClient webClient = webClientBuilder.baseUrl("http://localhost:8085").build();
             Flux<FlightOffer> smartRoutes = webClient.post()
                     .uri(uriBuilder -> uriBuilder.path("/v1/routing/calculate")
                             .queryParam("origin", departure)

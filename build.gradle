@@ -28,6 +28,7 @@ subprojects {
         annotationProcessor 'org.projectlombok:lombok'
         testCompileOnly 'org.projectlombok:lombok'
         testAnnotationProcessor 'org.projectlombok:lombok'
+        implementation 'io.micrometer:micrometer-tracing-bridge-brave'
     }
 
     tasks.named('test') {

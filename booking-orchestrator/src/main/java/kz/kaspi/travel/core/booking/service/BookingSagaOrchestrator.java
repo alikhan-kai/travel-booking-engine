@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+
 import reactor.core.publisher.Mono;
 
 @Service
@@ -19,15 +21,17 @@ public class BookingSagaOrchestrator {
     private final BookingRepository bookingRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    // Клиент для проверки ИИН в profile-service
-    private final org.springframework.web.reactive.function.client.WebClient profileClient = 
-            org.springframework.web.reactive.function.client.WebClient.create("http://localhost:8086");
+    private final org.springframework.web.reactive.function.client.WebClient.Builder webClientBuilder;
 
-    public record ValidationResponse(boolean isValid, String message) {}
+    public record ValidationResponse(boolean isValid, String message) {
+    }
 
     public Mono<Booking> startSaga(Booking booking, String passengerIin) {
-        
-        System.out.println("🛡️ [SAGA PRE-CHECK] Отправляем ИИН " + passengerIin + " на проверку в Profile Service...");
+
+        System.out.println("[SAGA PRE-CHECK] Отправляем ИИН " + passengerIin + " на проверку в Profile Service...");
+
+        org.springframework.web.reactive.function.client.WebClient profileClient = 
+                webClientBuilder.baseUrl("http://localhost:8086").build();
 
         return profileClient.get()
                 .uri("/v1/profiles/validate?iin=" + passengerIin)
@@ -35,12 +39,12 @@ public class BookingSagaOrchestrator {
                 .bodyToMono(ValidationResponse.class)
                 .flatMap(validation -> {
                     if (!validation.isValid()) {
-                        System.out.println("⛔ [SAGA ОТМЕНА] Бронь отклонена: " + validation.message());
+                        System.out.println("[SAGA ОТМЕНА] Бронь отклонена: " + validation.message());
                         booking.setStatus("REJECTED_BY_ANTIFRAUD");
                         return bookingRepository.save(booking); // Сохраняем в БД как отклоненный
                     }
 
-                    System.out.println("✅ [SAGA PRE-CHECK] Пассажир чист! Начинаем транзакцию.");
+                    System.out.println("[SAGA PRE-CHECK] Пассажир чист! Начинаем транзакцию.");
                     booking.setStatus("NEW");
 
                     return bookingRepository.save(booking)
@@ -52,7 +56,7 @@ public class BookingSagaOrchestrator {
                                         .build();
 
                                 kafkaTemplate.send("loyalty-commands", saved.getId().toString(), command);
-                                System.out.println("🚀 [SAGA START] Отправлена команда на заморозку бонусов.");
+                                System.out.println("[SAGA START] Отправлена команда на заморозку бонусов.");
                             });
                 });
     }
@@ -84,7 +88,7 @@ public class BookingSagaOrchestrator {
     @KafkaListener(topics = "payment-events", groupId = "orchestrator-group")
     public void onPaymentProcessed(PaymentProcessedEvent event) {
         if ("SUCCESS".equals(event.getStatus())) {
-            System.out.println("🎉 [SAGA ФИНАЛ] Оплата прошла! Выписываем билет для заказа: " + event.getBookingId());
+            System.out.println("[SAGA ФИНАЛ] Оплата прошла! Выписываем билет для заказа: " + event.getBookingId());
 
             bookingRepository.findById(Long.valueOf(event.getBookingId()))
                     .flatMap(booking -> {
