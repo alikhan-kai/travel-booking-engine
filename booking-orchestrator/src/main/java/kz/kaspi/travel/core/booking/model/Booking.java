@@ -21,4 +21,6 @@ public class Booking {
 
     private String status;
     private LocalDateTime createdAt;
+
+    private String fareType;
 }
