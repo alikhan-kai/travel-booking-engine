@@ -1,4 +1,4 @@
-package kz.kaspi.travel.routing.service;
+﻿package kz.kaspi.travel.routing.service;
 
 import org.springframework.stereotype.Service;
 import lombok.Data;
@@ -32,13 +32,13 @@ public class SmartRouteService {
                     if (secondLeg.getDepartureCity().equals(firstLeg.getArrivalCity())
                             && secondLeg.getArrivalCity().equals(destination)) {
 
-                        // Поскольку mock-клиенты не присылают arrivalTime (он null), эмулируем полет в 2 часа
+                        // РџРѕСЃРєРѕР»СЊРєСѓ mock-РєР»РёРµРЅС‚С‹ РЅРµ РїСЂРёСЃС‹Р»Р°СЋС‚ arrivalTime (РѕРЅ null), СЌРјСѓР»РёСЂСѓРµРј РїРѕР»РµС‚ РІ 2 С‡Р°СЃР°
                         Duration layover = Duration.between(firstLeg.getDepartureTime().plusHours(2), secondLeg.getDepartureTime());
 
                         if (layover.toHours() >= 2 && layover.toHours() <= 12) {
-                            System.out.println("🔗 [ROUTING] Найдена умная стыковка! " +
+                            System.out.println("рџ”— [ROUTING] РќР°Р№РґРµРЅР° СѓРјРЅР°СЏ СЃС‚С‹РєРѕРІРєР°! " +
                                     firstLeg.getAirline() + " + " + secondLeg.getAirline() +
-                                    " через " + firstLeg.getArrivalCity());
+                                    " С‡РµСЂРµР· " + firstLeg.getArrivalCity());
 
                             smartRoutes.add(FlightSegment.builder()
                                     .airline("KASPI_SMART: " + firstLeg.getAirline() + "+" + secondLeg.getAirline())
