@@ -1,9 +1,10 @@
-package kz.kaspi.travel.core.booking.model;
+﻿package kz.kaspi.travel.core.booking.model;
 
 import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.annotation.Version;
 
 import lombok.Builder;
 import lombok.Data;
@@ -28,4 +29,8 @@ public class Booking {
     private LocalDateTime createdAt;
 
     private String fareType;
+
+    @Version
+    private Long version; // Optimistic Locking
 }
+
