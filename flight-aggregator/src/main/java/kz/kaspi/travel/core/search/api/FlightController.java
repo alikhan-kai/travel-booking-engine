@@ -14,7 +14,7 @@ public class FlightController {
     private final FlightSearchService flightSearchService;
 
     @GetMapping("/search")
-    public Flux<FlightOffer> search(@RequestParam String departure, @RequestParam String arrival) {
+    public Flux<FlightOffer> search(@RequestParam("departure") String departure, @RequestParam("arrival") String arrival) {
         return flightSearchService.searchFlights(departure, arrival);
     }
 }

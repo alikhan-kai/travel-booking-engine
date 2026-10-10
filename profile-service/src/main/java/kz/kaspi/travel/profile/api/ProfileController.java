@@ -11,8 +11,8 @@ public class ProfileController {
             "900101400001",
             "850505300002");
 
-    @GetMapping("validate")
-    public Mono<ValidationResponse> validatePassenger(@RequestParam String iin) {
+    @GetMapping("/validate")
+    public Mono<ValidationResponse> validatePassenger(@RequestParam("iin") String iin) {
         System.out.println("[PROFILE SERVICE] Check IIN " + iin + " in db for blacklist...");
 
         if (blacklistedIins.contains(iin)) {

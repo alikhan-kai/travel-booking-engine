@@ -17,9 +17,9 @@ public class BookingController {
 
     @PostMapping("/hold")
     public Mono<Booking> holdSeat(
-            @RequestParam String flightId,
-            @RequestParam String seatNumber,
-            @RequestParam String iin) {
+            @RequestParam("flightId") String flightId,
+            @RequestParam("seatNumber") String seatNumber,
+            @RequestParam("iin") String iin) {
 
         Booking booking = new Booking();
         booking.setFlightId(flightId);
@@ -30,7 +30,7 @@ public class BookingController {
     }
 
     @PostMapping("/{id}/refund")
-    public Mono<Booking> refundBooking(@PathVariable Long id) {
+    public Mono<Booking> refundBooking(@PathVariable("id") Long id) {
         return refundSagaOrchestrator.processRefund(id);
     }
 }
