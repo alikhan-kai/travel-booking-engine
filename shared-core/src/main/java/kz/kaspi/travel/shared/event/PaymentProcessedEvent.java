@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
+@lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
 public class PaymentProcessedEvent implements Event {
     private String eventId;
     private String bookingId;

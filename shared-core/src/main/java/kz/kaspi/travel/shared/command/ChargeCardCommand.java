@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 
 @Data
 @Builder
+@lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
 public class ChargeCardCommand implements Command {
     private String bookingId;
     private String userId;

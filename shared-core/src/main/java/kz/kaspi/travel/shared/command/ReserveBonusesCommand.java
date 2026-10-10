@@ -5,6 +5,8 @@ import lombok.Data;
 
 @Data
 @Builder
+@lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
 public class ReserveBonusesCommand implements Command {
     private String bookingId;   // Для какого заказа
     private String userId;      // Чьи бонусы
