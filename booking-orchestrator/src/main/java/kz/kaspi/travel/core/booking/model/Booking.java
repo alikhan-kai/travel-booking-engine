@@ -1,4 +1,4 @@
-﻿package kz.kaspi.travel.core.booking.model;
+package kz.kaspi.travel.core.booking.model;
 
 import java.time.LocalDateTime;
 
