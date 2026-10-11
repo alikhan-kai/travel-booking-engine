@@ -7,3 +7,6 @@ CREATE TABLE IF NOT EXISTS bookings (
     fare_type VARCHAR(20),
     version BIGINT DEFAULT 0
 );
+
+CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
+CREATE INDEX IF NOT EXISTS idx_bookings_flight_id ON bookings(flight_id);
