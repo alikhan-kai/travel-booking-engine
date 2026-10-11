@@ -126,3 +126,13 @@ docker compose up -d
    * Booking Orchestrator (Порт 8082)
 
 *Примечание: Создание схемы базы данных (таблица `bookings`) произойдет автоматически при старте Booking Orchestrator благодаря настроенному механизму R2DBC Schema Initialization.*
+
+## Топики Apache Kafka
+
+Взаимодействие между микросервисами построено на следующих топиках брокера сообщений:
+
+* `loyalty-commands` — команды на резервирование и списание бонусов в Loyalty Service.
+* `loyalty-events` — события об успешной или неуспешной фиксации бонусов.
+* `payment-commands` — команды на списание денежных средств в Payment Gateway.
+* `payment-events` — события завершения платежной транзакции (статусы SUCCESS / FAILED).
+* `payment-refund-commands` — команды на проведение компенсационной транзакции (возврат средств при отмене).
